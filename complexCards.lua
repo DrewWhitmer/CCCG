@@ -5,7 +5,7 @@ AresClass = CardClass:new(
   2,
   2,
   "Ares",
-  "When Revealed: Gain +2 power for each enemy card here.",
+  "When Revealed:\nGain +2 power for\neach enemy card\nhere.",
   CARD_STATES.IN_DECK,
   Vector(0, 0)
   )
@@ -19,7 +19,7 @@ function AresClass:new(pos)
   return ares
 end
 
-function AresClass:OnReveal()
+function AresClass:onReveal()
   self.power = self.power + (2 * #self.lane.adj.cards)
 end
 
@@ -28,7 +28,7 @@ ArtemisClass = CardClass:new(
   4,
   4,
   "Artemis",
-  "When Revealed: Gain +5 power if there is exactly one enemy card here.",
+  "When Revealed:\nGain +5 power if\nthere is exactly\none enemy card here.",
   CARD_STATES.IN_DECK,
   Vector(0, 0)
 )
@@ -43,7 +43,7 @@ function ArtemisClass:new(pos)
   return artemis
 end
 
-function ArtemisClass:OnReveal()
+function ArtemisClass:onReveal()
   if #self.lane.adj.cards == 1 then
     self.power = self.power + 5
   end
@@ -54,7 +54,7 @@ HeraClass = CardClass:new(
   4,
   6,
   "Hera",
-  "When Revealed: Give cards in your hand +1 power.",
+  "When Revealed:\nGive cards in your\nhand +1 power.",
   CARD_STATES.IN_DECK,
   Vector(0, 0)
 )
@@ -69,7 +69,7 @@ function HeraClass:new(pos)
   return hera
 end
 
-function HeraClass:OnReveal()
+function HeraClass:onReveal()
   for _, card in ipairs(self.lane.hand.cards) do
     card.power = card.power + 1
   end
@@ -80,7 +80,7 @@ DemeterClass = CardClass:new(
   1,
   1,
   "Demeter",
-  "When Revealed: Both players draw a card.",
+  "When Revealed:\nBoth players\ndraw a card.",
   CARD_STATES.IN_DECK,
   Vector(0, 0)
 )
@@ -95,7 +95,7 @@ function DemeterClass:new(pos)
   return demeter
 end
 
-function DemeterClass:OnReveal()
+function DemeterClass:onReveal()
   drawCards()
 end
 
@@ -104,7 +104,7 @@ HerculesClass = CardClass:new(
   3,
   4,
   "Hercules",
-  "When Revealed: Doubles it's power if it's the strongest card here.",
+  "When Revealed:\nDoubles it's power\nif it's the\nstrongest card here.",
   CARD_STATES.IN_DECK,
   Vector(0, 0)
 )
@@ -119,7 +119,7 @@ function HerculesClass:new(pos)
   return hercules
 end
 
-function HerculesClass:OnReveal()
+function HerculesClass:onReveal()
   if self:getStrongestHere().power == self.power then
     self.power = self.power * 2
   end
@@ -130,7 +130,7 @@ DionysusClass = CardClass:new(
   2,
   3,
   "Dionysus",
-  "When Revealed: Gains +2 power for each of your other cards here.",
+  "When Revealed:\nGains +2 power for\neach of your other\ncards here.",
   CARD_STATES.IN_DECK,
   Vector(0, 0)
 )
@@ -145,7 +145,7 @@ function DionysusClass:new(pos)
   return dionysus
 end
 
-function DionysusClass:OnReveal()
+function DionysusClass:onReveal()
   self.power = self.power + (2 * (#self.lane.cards - 1))
 end
 
@@ -154,7 +154,7 @@ MidasClass = CardClass:new(
   5,
   3,
   "Midas",
-  "When Revealed: Set ALL cards here to 3 power.",
+  "When Revealed:\nSet ALL cards here\nto 3 power.",
   CARD_STATES.IN_DECK,
   Vector(0, 0)
 )
@@ -169,7 +169,7 @@ function MidasClass:new(pos)
   return midas
 end
 
-function MidasClass:OnReveal()
+function MidasClass:onReveal()
   for _, card in ipairs(self.lane.cards) do
     card.power = 3
   end
@@ -183,7 +183,7 @@ AphroditeClass = CardClass:new(
   5,
   5,
   "Aphrodite",
-  "When Revealed: Lower the power of each enemy card here by 1.",
+  "When Revealed:\nLower the power\nof each enemy card\nhere by 1.",
   CARD_STATES.IN_DECK,
   Vector(0, 0)
 )
@@ -198,7 +198,7 @@ function AphroditeClass:new(pos)
   return aphrodite
 end
 
-function AphroditeClass:OnReveal()
+function AphroditeClass:onReveal()
   for _, card in ipairs(self.lane.adj.cards) do
     card.power = card.power - 1
   end
@@ -209,7 +209,7 @@ HephClass = CardClass:new(
   5,
   5,
   "Hephaestus",
-  "When Revealed: Lower the cost of two cards in your hand by 1.",
+  "When Revealed:\nLower the cost of\ntwo cards in your\nhand by 1.",
   CARD_STATES.IN_DECK,
   Vector(0, 0)
 )
@@ -224,7 +224,7 @@ function HephClass:new(pos)
   return heph
 end
 
-function HephClass:OnReveal()
+function HephClass:onReveal()
   for _, card in ipairs(self:getTwoCards()) do
     card.cost = card.cost - 1
   end
@@ -235,7 +235,7 @@ PandoraClass = CardClass:new(
   6,
   13,
   "Pandora",
-  "When Revealed: If no ally cards are here, lower this card's power by 5.",
+  "When Revealed:\nIf no ally cards\nare here, lower\nthis card's power\nby 5.",
   CARD_STATES.IN_DECK,
   Vector(0, 0)
 )
@@ -250,7 +250,7 @@ function PandoraClass:new(pos)
   return pandora
 end
 
-function PandoraClass:OnReveal()
+function PandoraClass:onReveal()
   if #self.lane.cards == 1 then
     self.power = self.power - 5
   end

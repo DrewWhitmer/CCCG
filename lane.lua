@@ -35,7 +35,7 @@ function LaneClass:addCard(card)
   table.insert(self.cards, card)
   table.insert(revealQueue, card)
   card.state = CARD_STATES.FLIPPED
-  card.adj = self
+  card.lane = self
   
   --set the card's position
   if #self.cards > 2 then

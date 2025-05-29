@@ -29,17 +29,74 @@ function love.load()
   playerDeckPos = Vector(720, 500)
   enemyDeck = {}
   enemyDeckPos = Vector(720, 50)
+  --cards that go in each player's deck twice
+  twoPerDeck = {
+    WoodCowClass:new(Vector(0, 0)),
+    PegasusClass:new(Vector(0, 0)),
+    MinotaurClass:new(Vector(0, 0)),
+    TitanClass:new(Vector(0, 0)),
+    AresClass:new(Vector(0, 0)),
+    PandoraClass:new(Vector(0, 0))
+  }
+  --cards that go in each player's deck once
+  onePerDeck = {
+    ArtemisClass:new(Vector(0, 0)),
+    HeraClass:new(Vector(0, 0)),
+    DemeterClass:new(Vector(0, 0)),
+    HerculesClass:new(Vector(0, 0)),
+    DionysusClass:new(Vector(0, 0)),
+    MidasClass:new(Vector(0, 0)),
+    AphroditeClass:new(Vector(0, 0)),
+    HephClass:new(Vector(0, 0))
+  }
   
-  for i = 1, 20 do
-    local card = CardClass:new(1, 1, 1, 1, CARD_STATES.IN_DECK, playerDeckPos)
-    table.insert(playerDeck, card)
-    table.insert(cardTable, card)
+  for _, card in ipairs(twoPerDeck) do
+    local card1 = card:new(playerDeckPos)
+    local card2 = card:new(playerDeckPos)
+    table.insert(playerDeck, card1)
+    table.insert(cardTable, card1)
+    table.insert(playerDeck, card2)
+    table.insert(cardTable, card2)
   end
   
-  for i = 1, 20 do
-    local card = CardClass:new(1, 1, 1, 1, CARD_STATES.IN_DECK, enemyDeckPos)
-    table.insert(enemyDeck, card)
-    table.insert(cardTable, card)
+  for _, card in ipairs(twoPerDeck) do
+    local card1 = card:new(enemyDeckPos)
+    local card2 = card:new(enemyDeckPos)
+    table.insert(enemyDeck, card1)
+    table.insert(cardTable, card1)
+    table.insert(enemyDeck, card2)
+    table.insert(cardTable, card2)
+  end
+  
+  for _, card in ipairs(onePerDeck) do
+    local card1 = card:new(playerDeckPos)
+    local card2 = card:new(enemyDeckPos)
+    table.insert(playerDeck, card1)
+    table.insert(cardTable, card1)
+    table.insert(enemyDeck, card2)
+    table.insert(cardTable, card2)
+  end
+  
+  math.randomseed(os.time())
+  --Modern Fisher-Yates
+  local cardCount = #playerDeck
+  for i = 1, cardCount do
+    local randIndex = math.random(cardCount)
+    local temp = playerDeck[randIndex]
+    playerDeck[randIndex] = playerDeck[cardCount]
+    playerDeck[cardCount] = temp
+    cardCount = cardCount - 1
+  end
+  
+  math.randomseed(os.time())
+  --Modern Fisher-Yates
+  local cardCount = #enemyDeck
+  for i = 1, cardCount do
+    local randIndex = math.random(cardCount)
+    local temp = enemyDeck[randIndex]
+    enemyDeck[randIndex] = enemyDeck[cardCount]
+    enemyDeck[cardCount] = temp
+    cardCount = cardCount - 1
   end
   
   playerHand = HandClass:new(150, 540)
@@ -126,7 +183,7 @@ function nextTurn()
   elseif enemyPoints > playerPoints then
     revealCards(enemyLaneTable)
     revealCards(playerLaneTable)
-  elseif math.random > 0.5 then
+  elseif math.random() > 0.5 then
     revealCards(playerLaneTable)
     revealCards(enemyLaneTable)
   else
@@ -185,10 +242,16 @@ end
 --draw a card for both players
 function drawCards()
   --we use the add card function for the player hand and not the enemy hand so that the state of the enemy's card does not change, keeping it uninteractable
-  playerHand:addCard(playerDeck[1])
-  table.remove(playerDeck, 1)
-  table.insert(enemyHand.cards, enemyDeck[1])
-  table.remove(enemyDeck, 1)
+  if #playerHand.cards < 7 then
+    playerHand:addCard(playerDeck[1])
+    playerDeck[1].hand = playerHand
+    table.remove(playerDeck, 1)
+  end
+  if #enemyHand.cards < 7 then
+    table.insert(enemyHand.cards, enemyDeck[1])
+    enemyDeck[1].hand = enemyHand
+    table.remove(enemyDeck, 1)
+  end
 end
 
 --reveal all cards in a given lane table

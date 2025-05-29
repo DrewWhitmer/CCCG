@@ -35,6 +35,7 @@ end
 
 --only use for player hand, makes sure that player can pick up/see their own cards but not the enemy's
 function HandClass:addCard(card)
+  
   table.insert(self.cards, card)
   card.state = CARD_STATES.IN_HAND
 end
