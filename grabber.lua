@@ -43,9 +43,6 @@ function GrabberClass:release(grabbedCard)
     if self.currentMousePos.x >= lane.pos.x and self.currentMousePos.x <= lane.pos.x + LANE_WIDTH and self.currentMousePos.y >= lane.pos.y and self.currentMousePos.y <= lane.pos.y + LANE_HEIGHT and grabbedCard.cost <= playerMana then
       lane:addCard(grabbedCard)
       playerHand:remove(grabbedCard)
-      table.insert(revealQueue, grabbedCard)
-      grabbedCard.lane = index
-      playerMana = playerMana - grabbedCard.cost
       return
     end
   end

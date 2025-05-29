@@ -63,3 +63,118 @@ end
 function CardClass:onReveal()
   return
 end
+
+--subclass sandbox
+
+--returns the card with the most power in a given lane
+function CardClass:getStrongestHere()
+  local strongestCard = self.lane.cards[1]
+  for _, card in ipairs(self.lane.cards) do
+    if card.power > strongestCard.power then
+      strongestCard = card
+    end
+  end
+  
+  for _, card in ipairs(self.lane.adj.cards) do
+    if card.power > strongestCard.power then
+      strongestCard = card
+    end
+  end
+  
+  return strongestCard
+end
+
+--returns two random cards
+function CardClass:getTwoCards()
+  if #self.hand.cards <= 2 then
+    return self.hand.cards
+  end
+  
+  local randIndex1 = math.random(#self.hand.cards)
+  local randIndex2 = math.random(#self.hand.cards)
+  --makes sure that it doesn't return two of the same card
+  while randIndex2 == randIndex1 do
+    randIndex2 = math.random(#self.hand.cards)
+  end
+  
+  return {self.hand.cards[randIndex1], self.hand.cards[randIndex2]}
+end
+
+
+-- BASIC CARDS --
+
+--Wooden Cow
+WoodCowClass = CardClass:new(
+  1,
+  1,
+  "Wooden Cow",
+  "",
+  CARD_STATES.IN_DECK,
+  Vector(0, 0)
+  )
+function WoodCowClass:new(pos)
+  local woodCow = {}
+  local metadata = {__index = WoodCowClass}
+  setmetatable(woodCow, metadata)
+  
+  woodCow.pos = pos
+  
+  return woodCow
+end
+
+--Pegasus
+PegasusClass = CardClass:new(
+  3,
+  5,
+  "Pegasus",
+  "",
+  CARD_STATES.IN_DECK,
+  Vector(0, 0)
+  )
+function PegasusClass:new(pos)
+  local pegasus = {}
+  local metadata = {__index = PegasusClass}
+  setmetatable(pegasus, metadata)
+  
+  pegasus.pos = pos
+  
+  return pegasus
+end
+
+--Minotaur
+MinotaurClass = CardClass:new(
+  5,
+  9,
+  "Minotaur",
+  "",
+  CARD_STATES.IN_DECK,
+  Vector(0, 0)
+  )
+function MinotaurClass:new(pos)
+  local minotaur = {}
+  local metadata = {__index = MinotaurClass}
+  setmetatable(minotaur, metadata)
+  
+  minotaur.pos = pos
+  
+  return minotaur
+end
+
+--Titan
+TitanClass = CardClass:new(
+  6,
+  12,
+  "Titan",
+  "",
+  CARD_STATES.IN_DECK,
+  Vector(0, 0)
+  )
+function TitanClass:new(pos)
+  local titan = {}
+  local metadata = {__index = TitanClass}
+  setmetatable(titan, metadata)
+  
+  titan.pos = pos
+  
+  return titan
+end

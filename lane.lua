@@ -3,13 +3,15 @@ LaneClass = {}
 LANE_WIDTH = CARD_WIDTH * 2 + CARD_OFFSET*3
 LANE_HEIGHT = CARD_HEIGHT * 2 + CARD_OFFSET*3
 
-function LaneClass:new(xPos, yPos)
+function LaneClass:new(xPos, yPos, hand)
   local lane = {}
   local metatable = {__index = LaneClass}
   setmetatable(lane, metatable)
   
   lane.pos = Vector(xPos, yPos)
+  lane.hand = hand
   lane.cards = {}
+  lane.adj = nil
   
   return lane
 end
@@ -31,7 +33,9 @@ function LaneClass:addCard(card)
   
   --adds the card and set's it state to flipped
   table.insert(self.cards, card)
+  table.insert(revealQueue, card)
   card.state = CARD_STATES.FLIPPED
+  card.adj = self
   
   --set the card's position
   if #self.cards > 2 then

@@ -14,6 +14,7 @@ COLORS = {
 function love.load()
   require "vector"
   require "card"
+  require "complexCards"
   require "grabber"
   require "lane"
   require "hand"
@@ -44,13 +45,25 @@ function love.load()
   playerHand = HandClass:new(150, 540)
   enemyHand = HandClass:new(150, 10)
   
-  for i = 1, 3 do
-    drawCards()
-  end
   
   grabber = GrabberClass:new()
-  playerLaneTable = {LaneClass:new(150, 330), LaneClass:new(150 + LANE_WIDTH + 20, 330), LaneClass:new(150 + LANE_WIDTH * 2 + 40, 330)}
-  enemyLaneTable = {LaneClass:new(150, 110), LaneClass:new(150 + LANE_WIDTH + 20, 110), LaneClass:new(150 + LANE_WIDTH * 2 + 40, 110)}
+  playerLaneTable = {
+    LaneClass:new(150, 330, playerHand), 
+    LaneClass:new(150 + LANE_WIDTH + 20, 330, playerHand), 
+    LaneClass:new(150 + LANE_WIDTH * 2 + 40, 330, playerHand)
+  }
+  
+  enemyLaneTable = {
+    LaneClass:new(150, 110, enemyHand), 
+    LaneClass:new(150 + LANE_WIDTH + 20, 110, enemyHand),
+    LaneClass:new(150 + LANE_WIDTH * 2 + 40, 110, enemyHand)
+  }
+  
+  for i = 1, 3 do
+    drawCards()
+    playerLaneTable[i].adj = enemyLaneTable[i]
+    enemyLaneTable[i].adj = playerLaneTable[i]
+  end
   
   revealQueue = {}
   
@@ -107,9 +120,18 @@ function nextTurn()
   playRandomEnemyCard()
   
   --reveal all flipped cards
-  for _, card in ipairs(revealQueue) do
-    card.state = CARD_STATES.IN_PLAY
-    card:onReveal()
+  if playerPoints > enemyPoints then
+    revealCards(playerLaneTable)
+    revealCards(enemyLaneTable)
+  elseif enemyPoints > playerPoints then
+    revealCards(enemyLaneTable)
+    revealCards(playerLaneTable)
+  elseif math.random > 0.5 then
+    revealCards(playerLaneTable)
+    revealCards(enemyLaneTable)
+  else
+    revealCards(enemyLaneTable)
+    revealCards(playerLaneTable)
   end
   
   --get the total power of a specific lane for player and enemy. If enemy power is greater, add it to enemy points, else add it to player points
@@ -153,7 +175,6 @@ function playRandomEnemyCard()
       if card.cost <= enemyMana and #lane.cards < 4 then
         randomLane:addCard(card)
         table.remove(enemyHand.cards, index)
-        table.insert(revealQueue, card)
         return
       end
     end
@@ -169,3 +190,18 @@ function drawCards()
   table.insert(enemyHand.cards, enemyDeck[1])
   table.remove(enemyDeck, 1)
 end
+
+--reveal all cards in a given lane table
+function revealCards(laneTable)
+  for _, lane in ipairs(laneTable) do
+    for _, card in ipairs(lane.cards) do
+      if card.state == CARD_STATES.FLIPPED then
+        card:onReveal()
+        card.state = CARD_STATES.IN_PLAY
+      end
+    end
+  end
+end
+
+
+
