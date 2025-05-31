@@ -8,7 +8,10 @@ CARD_OFFSET = 5
 
 COLORS = {
   WHITE = {1, 1, 1},
-  BLACK = {0, 0, 0}
+  BLACK = {0, 0, 0},
+  BLUE = {0.1, 0.3, 0.9},
+  GREY = {0.5, 0.5, 0.5},
+  RED = {0.9, 0.1, 0.3}
 }
 
 function love.load()
@@ -29,6 +32,7 @@ function love.load()
   playerDeckPos = Vector(720, 500)
   enemyDeck = {}
   enemyDeckPos = Vector(720, 50)
+  
   --cards that go in each player's deck twice
   twoPerDeck = {
     WoodCowClass:new(Vector(0, 0)),
@@ -49,6 +53,116 @@ function love.load()
     AphroditeClass:new(Vector(0, 0)),
     HephClass:new(Vector(0, 0))
   }
+  
+  playerHand = HandClass:new(150, 540)
+  enemyHand = HandClass:new(150, 10)
+  
+  
+  grabber = GrabberClass:new()
+  playerLaneTable = {
+    LaneClass:new(150, 330, playerHand), 
+    LaneClass:new(150 + LANE_WIDTH + 20, 330, playerHand), 
+    LaneClass:new(150 + LANE_WIDTH * 2 + 40, 330, playerHand)
+  }
+  
+  enemyLaneTable = {
+    LaneClass:new(150, 110, enemyHand), 
+    LaneClass:new(150 + LANE_WIDTH + 20, 110, enemyHand),
+    LaneClass:new(150 + LANE_WIDTH * 2 + 40, 110, enemyHand)
+  }
+  
+  reset()
+  
+  submitButtonPos = Vector(850, 320)
+  outerSubmitRad = 50
+  innerSubmitRad = 45
+  submitText = "submit"
+  
+  retryButtonPos = Vector(0, 500)
+  outerRetryRad = 50
+  innerRetryRad = 45
+  retryText = "reset"
+  
+  gameOver = false
+end
+
+function love.update()
+  grabber:update()
+  
+  for _, card in ipairs(cardTable) do
+    card:update()
+  end
+  
+  playerHand:update()
+  enemyHand:update()
+  
+end
+
+function love.draw()
+  
+  love.graphics.setFont(love.graphics.setNewFont(12))
+  for _, lane in ipairs(playerLaneTable) do
+    lane:draw()
+  end
+  
+  for _, lane in ipairs(enemyLaneTable) do
+    lane:draw()
+  end
+  
+  for _, card in ipairs(cardTable) do
+    card:draw()
+  end
+  
+  --submit button
+  love.graphics.setColor(COLORS.GREY)
+  love.graphics.circle("fill", submitButtonPos.x + outerSubmitRad, submitButtonPos.y + outerSubmitRad, outerSubmitRad)
+  love.graphics.setColor(COLORS.BLUE)
+  love.graphics.circle("fill", submitButtonPos.x + outerSubmitRad, submitButtonPos.y + outerSubmitRad, innerSubmitRad)
+  love.graphics.setColor(COLORS.BLACK)
+  love.graphics.print(submitText, submitButtonPos.x + outerSubmitRad, submitButtonPos.y + innerSubmitRad, 0, 1, 1, love.graphics.getFont():getWidth(submitText)/2)
+  
+  --retry button
+  love.graphics.setColor(COLORS.GREY)
+  love.graphics.circle("fill", retryButtonPos.x + outerRetryRad, retryButtonPos.y + outerRetryRad, outerRetryRad)
+  love.graphics.setColor(COLORS.RED)
+  love.graphics.circle("fill", retryButtonPos.x + outerRetryRad, retryButtonPos.y + outerRetryRad, innerRetryRad)
+  love.graphics.setColor(COLORS.BLACK)
+  love.graphics.print(retryText, retryButtonPos.x + outerRetryRad, retryButtonPos.y + innerRetryRad, 0, 1, 1, love.graphics.getFont():getWidth(retryText)/2)
+  
+  --game state information
+  love.graphics.print("Player points: " .. playerPoints, 0, 320)
+  love.graphics.print("AI points: " .. enemyPoints, 0, 340)
+  love.graphics.print("Player mana: " .. playerMana, 0, 360)
+  love.graphics.print("AI mana: " .. enemyMana, 0, 380)
+  
+  if not gameOver then
+    return
+  end
+  
+  love.graphics.setFont(love.graphics.setNewFont(70))
+  if enemyPoints > playerPoints then
+    love.graphics.print("You Lose", 280, 0)
+  else
+    love.graphics.print("You Win!", 280, 0)
+  end
+  
+  
+end
+
+function love.mousepressed()
+  grabbedCard = grabber:grab()
+end
+
+function love.mousereleased()
+  grabber:release(grabbedCard)
+end
+
+function reset()
+  
+  --reset cards
+  cardTable = {}
+  playerDeck = {}
+  enemyDeck = {}
   
   for _, card in ipairs(twoPerDeck) do
     local card1 = card:new(playerDeckPos)
@@ -88,9 +202,7 @@ function love.load()
     cardCount = cardCount - 1
   end
   
-  math.randomseed(os.time())
-  --Modern Fisher-Yates
-  local cardCount = #enemyDeck
+  cardCount = #enemyDeck
   for i = 1, cardCount do
     local randIndex = math.random(cardCount)
     local temp = enemyDeck[randIndex]
@@ -99,22 +211,16 @@ function love.load()
     cardCount = cardCount - 1
   end
   
-  playerHand = HandClass:new(150, 540)
-  enemyHand = HandClass:new(150, 10)
+  for _, lane in ipairs(playerLaneTable) do
+    lane.cards = {}
+  end
   
+  for _, lane in ipairs(enemyLaneTable) do
+    lane.cards = {}
+  end
   
-  grabber = GrabberClass:new()
-  playerLaneTable = {
-    LaneClass:new(150, 330, playerHand), 
-    LaneClass:new(150 + LANE_WIDTH + 20, 330, playerHand), 
-    LaneClass:new(150 + LANE_WIDTH * 2 + 40, 330, playerHand)
-  }
-  
-  enemyLaneTable = {
-    LaneClass:new(150, 110, enemyHand), 
-    LaneClass:new(150 + LANE_WIDTH + 20, 110, enemyHand),
-    LaneClass:new(150 + LANE_WIDTH * 2 + 40, 110, enemyHand)
-  }
+  playerHand.cards = {}
+  enemyHand.cards = {}
   
   for i = 1, 3 do
     drawCards()
@@ -122,55 +228,13 @@ function love.load()
     enemyLaneTable[i].adj = playerLaneTable[i]
   end
   
-  revealQueue = {}
-  
+  --reset game state
   turn = 1
   playerMana = turn
   enemyMana = turn
-  
   playerPoints = 0
   enemyPoints = 0
-end
-
-function love.update()
-  grabber:update()
-  
-  for _, card in ipairs(cardTable) do
-    card:update()
-  end
-  
-  playerHand:update()
-  enemyHand:update()
-  
-end
-
-function love.keypressed(key)
-  nextTurn()
-end
-
-
-function love.draw()
-  
-  for _, lane in ipairs(playerLaneTable) do
-    lane:draw()
-  end
-  
-  for _, lane in ipairs(enemyLaneTable) do
-    lane:draw()
-  end
-  
-  for _, card in ipairs(cardTable) do
-    card:draw()
-  end
-  
-end
-
-function love.mousepressed()
-  grabbedCard = grabber:grab()
-end
-
-function love.mousereleased()
-  grabber:release(grabbedCard)
+  gameOver = false
 end
 
 function nextTurn()
@@ -201,17 +265,17 @@ function nextTurn()
     end
   end
 
-  if lanePower < 0 then
-    enemyPoints = enemyPoints - lanePower
-  else
-    playerPoints = playerPoints + lanePower
+  if playerPoints >= 25 or enemyPoints >= 25 then
+    gameOver = true
   end
+  
   
   drawCards()
     
   turn = turn + 1
   playerMana = turn
   enemyMana = turn
+  
 end
 
 function playRandomEnemyCard()
@@ -222,7 +286,6 @@ function playRandomEnemyCard()
   if randomCard.cost < enemyMana and #randomLane.cards < 4 then
     randomLane:addCard(randomCard)
     table.remove(enemyHand.cards, randomIndex)
-    table.insert(revealQueue, randomCard)
     return
   end
   

@@ -54,7 +54,12 @@ function CardClass:draw()
   --display card info
   love.graphics.setColor(COLORS.BLACK)
   love.graphics.print(self.cost, self.pos.x + 2, self.pos.y)
-  love.graphics.print(self.power, self.pos.x + CARD_WIDTH - 10, self.pos.y)
+  if self.power < 10 then
+    love.graphics.print(self.power, self.pos.x + CARD_WIDTH - 10, self.pos.y)
+  else
+    love.graphics.print(self.power, self.pos.x + CARD_WIDTH - 15, self.pos.y)
+  end
+  
   love.graphics.print(self.name, self.pos.x + CARD_WIDTH/2, self.pos.y + CARD_HEIGHT/2, 0, 1, 1, love.graphics.getFont():getWidth(self.name)/2)
   love.graphics.print(self.desc, self.pos.x + CARD_WIDTH/2, self.pos.y + CARD_HEIGHT/2 + 20, 0, 0.5, 0.5, love.graphics.getFont():getWidth(self.desc)/2)
 end

@@ -33,7 +33,6 @@ function LaneClass:addCard(card)
   
   --adds the card and set's it state to flipped
   table.insert(self.cards, card)
-  table.insert(revealQueue, card)
   card.state = CARD_STATES.FLIPPED
   card.lane = self
   

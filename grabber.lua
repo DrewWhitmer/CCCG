@@ -22,6 +22,16 @@ end
 function GrabberClass:grab()
   self.grabPos = self.currentMousePos
   
+  --sees if the player clicks on the retry button
+  if self.grabPos.x >= retryButtonPos.x and self.grabPos.x <= retryButtonPos.x + (outerRetryRad * 2) and self.grabPos.y >= retryButtonPos.y and self.grabPos.y <= retryButtonPos.y + (outerRetryRad * 2) then
+    reset()
+  end
+  
+  --player can't do anything besides reset if the game is over
+  if gameOver then
+    return
+  end
+  
   --searches for a card on the mouse position, if that card is in the players hand, grab it
   for _, card in ipairs(cardTable) do
     if self.grabPos.x >= card.pos.x and self.grabPos.x <= card.pos.x + CARD_WIDTH and self.grabPos.y >= card.pos.y and self.grabPos.y <= card.pos.y + CARD_HEIGHT and card.state == CARD_STATES.IN_HAND then
@@ -29,6 +39,13 @@ function GrabberClass:grab()
       return card
     end
   end
+  
+  --sees if the player clicks on the submit button
+  if self.grabPos.x >= submitButtonPos.x and self.grabPos.x <= submitButtonPos.x + (outerSubmitRad * 2) and self.grabPos.y >= submitButtonPos.y and self.grabPos.y <= submitButtonPos.y + (outerSubmitRad * 2) then
+    nextTurn()
+  end
+  
+  
 end
 
 function GrabberClass:release(grabbedCard)
