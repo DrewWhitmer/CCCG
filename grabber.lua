@@ -23,7 +23,7 @@ function GrabberClass:grab()
   self.grabPos = self.currentMousePos
   
   --sees if the player clicks on the retry button
-  if self.grabPos.x >= retryButtonPos.x and self.grabPos.x <= retryButtonPos.x + (outerRetryRad * 2) and self.grabPos.y >= retryButtonPos.y and self.grabPos.y <= retryButtonPos.y + (outerRetryRad * 2) then
+  if self.grabPos.x >= RETRY_BUTTON_POS.x and self.grabPos.x <= RETRY_BUTTON_POS.x + (OUTER_RETRY_RAD * 2) and self.grabPos.y >= RETRY_BUTTON_POS.y and self.grabPos.y <= RETRY_BUTTON_POS.y + (OUTER_RETRY_RAD * 2) then
     reset()
   end
   
@@ -41,7 +41,7 @@ function GrabberClass:grab()
   end
   
   --sees if the player clicks on the submit button
-  if self.grabPos.x >= submitButtonPos.x and self.grabPos.x <= submitButtonPos.x + (outerSubmitRad * 2) and self.grabPos.y >= submitButtonPos.y and self.grabPos.y <= submitButtonPos.y + (outerSubmitRad * 2) then
+  if self.grabPos.x >= SUBMIT_BUTTON_POS.x and self.grabPos.x <= SUBMIT_BUTTON_POS.x + (OUTER_SUBMIT_RAD * 2) and self.grabPos.y >= SUBMIT_BUTTON_POS.y and self.grabPos.y <= SUBMIT_BUTTON_POS.y + (OUTER_SUBMIT_RAD * 2) then
     nextTurn()
   end
   

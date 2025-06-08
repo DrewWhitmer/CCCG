@@ -3,6 +3,7 @@
 -- 5/20/2025
 
 io.stdout:setvbuf("no")
+require "vector"
 
 CARD_OFFSET = 5
 
@@ -11,12 +12,40 @@ COLORS = {
   BLACK = {0, 0, 0},
   BLUE = {0.1, 0.3, 0.9},
   GREY = {0.5, 0.5, 0.5},
-  RED = {0.9, 0.1, 0.3}
+  RED = {0.9, 0.1, 0.3},
+  GREEN = {0, 0.7, 0.2},
 }
 
+ENEMY_DECK_POS = Vector(720, 50)
+PLAYER_DECK_POS = Vector(720, 500)
+
+LANE_OFFSET = 20
+STARTING_LANE_X = 150
+PLAYER_LANE_Y = 330
+ENEMY_LANE_Y = 110
+
+SUBMIT_BUTTON_POS = Vector(850, 320)
+OUTER_SUBMIT_RAD = 50
+INNER_SUBMIT_RAD = 45
+SUBMIT_TEXT = "submit"
+
+RETRY_BUTTON_POS = Vector(0, 500)
+OUTER_RETRY_RAD = 50
+INNER_RETRY_RAD = 45
+RETRY_TEXT = "reset"
+
+GAME_STATE_X = 0
+GAME_STATE_Y = 320
+GAME_STATE_OFFSET = 20
+
+FONT_SIZE = 12
+GAME_OVER_FONT_SIZE = 70
+
+GAME_OVER_X = 280
+GAME_OVER_Y = 0
+
 function love.load()
-  require "vector"
-  require "card"
+  require "Cards/card"
   require "complexCards"
   require "grabber"
   require "lane"
@@ -24,14 +53,12 @@ function love.load()
   
   love.window.setTitle("The Cards of Theseus")
   love.window.setMode(960, 640)
-  love.graphics.setBackgroundColor(0, 0.7, 0.2, 1)
+  love.graphics.setBackgroundColor(COLORS.GREEN)
   
   cardTable = {}
   
   playerDeck = {}
-  playerDeckPos = Vector(720, 500)
   enemyDeck = {}
-  enemyDeckPos = Vector(720, 50)
   
   --cards that go in each player's deck twice
   twoPerDeck = {
@@ -60,30 +87,20 @@ function love.load()
   
   grabber = GrabberClass:new()
   playerLaneTable = {
-    LaneClass:new(150, 330, playerHand), 
-    LaneClass:new(150 + LANE_WIDTH + 20, 330, playerHand), 
-    LaneClass:new(150 + LANE_WIDTH * 2 + 40, 330, playerHand)
+    LaneClass:new(STARTING_LANE_X, PLAYER_LANE_Y, playerHand), 
+    LaneClass:new(STARTING_LANE_X + LANE_WIDTH + LANE_OFFSET, PLAYER_LANE_Y, playerHand), 
+    LaneClass:new(STARTING_LANE_X + LANE_WIDTH * 2 + LANE_OFFSET * 2, PLAYER_LANE_Y, playerHand)
   }
   
   enemyLaneTable = {
-    LaneClass:new(150, 110, enemyHand), 
-    LaneClass:new(150 + LANE_WIDTH + 20, 110, enemyHand),
-    LaneClass:new(150 + LANE_WIDTH * 2 + 40, 110, enemyHand)
+    LaneClass:new(STARTING_LANE_X, ENEMY_LANE_Y, enemyHand), 
+    LaneClass:new(STARTING_LANE_X + LANE_WIDTH + LANE_OFFSET, ENEMY_LANE_Y, enemyHand),
+    LaneClass:new(STARTING_LANE_X + LANE_WIDTH * 2 + LANE_OFFSET * 2, ENEMY_LANE_Y, enemyHand)
   }
   
-  reset()
-  
-  submitButtonPos = Vector(850, 320)
-  outerSubmitRad = 50
-  innerSubmitRad = 45
-  submitText = "submit"
-  
-  retryButtonPos = Vector(0, 500)
-  outerRetryRad = 50
-  innerRetryRad = 45
-  retryText = "reset"
-  
   gameOver = false
+  
+  reset()
 end
 
 function love.update()
@@ -100,7 +117,7 @@ end
 
 function love.draw()
   
-  love.graphics.setFont(love.graphics.setNewFont(12))
+  love.graphics.setFont(love.graphics.setNewFont(FONT_SIZE))
   for _, lane in ipairs(playerLaneTable) do
     lane:draw()
   end
@@ -115,35 +132,35 @@ function love.draw()
   
   --submit button
   love.graphics.setColor(COLORS.GREY)
-  love.graphics.circle("fill", submitButtonPos.x + outerSubmitRad, submitButtonPos.y + outerSubmitRad, outerSubmitRad)
+  love.graphics.circle("fill", SUBMIT_BUTTON_POS.x + OUTER_SUBMIT_RAD, SUBMIT_BUTTON_POS.y + OUTER_SUBMIT_RAD, OUTER_SUBMIT_RAD)
   love.graphics.setColor(COLORS.BLUE)
-  love.graphics.circle("fill", submitButtonPos.x + outerSubmitRad, submitButtonPos.y + outerSubmitRad, innerSubmitRad)
+  love.graphics.circle("fill", SUBMIT_BUTTON_POS.x + OUTER_SUBMIT_RAD, SUBMIT_BUTTON_POS.y + OUTER_SUBMIT_RAD, INNER_SUBMIT_RAD)
   love.graphics.setColor(COLORS.BLACK)
-  love.graphics.print(submitText, submitButtonPos.x + outerSubmitRad, submitButtonPos.y + innerSubmitRad, 0, 1, 1, love.graphics.getFont():getWidth(submitText)/2)
+  love.graphics.print(SUBMIT_TEXT, SUBMIT_BUTTON_POS.x + OUTER_SUBMIT_RAD, SUBMIT_BUTTON_POS.y + INNER_SUBMIT_RAD, 0, 1, 1, love.graphics.getFont():getWidth(SUBMIT_TEXT)/2)
   
   --retry button
   love.graphics.setColor(COLORS.GREY)
-  love.graphics.circle("fill", retryButtonPos.x + outerRetryRad, retryButtonPos.y + outerRetryRad, outerRetryRad)
+  love.graphics.circle("fill", RETRY_BUTTON_POS.x + OUTER_RETRY_RAD, RETRY_BUTTON_POS.y + OUTER_RETRY_RAD, OUTER_RETRY_RAD)
   love.graphics.setColor(COLORS.RED)
-  love.graphics.circle("fill", retryButtonPos.x + outerRetryRad, retryButtonPos.y + outerRetryRad, innerRetryRad)
+  love.graphics.circle("fill", RETRY_BUTTON_POS.x + OUTER_RETRY_RAD, RETRY_BUTTON_POS.y + OUTER_RETRY_RAD, INNER_RETRY_RAD)
   love.graphics.setColor(COLORS.BLACK)
-  love.graphics.print(retryText, retryButtonPos.x + outerRetryRad, retryButtonPos.y + innerRetryRad, 0, 1, 1, love.graphics.getFont():getWidth(retryText)/2)
+  love.graphics.print(RETRY_TEXT, RETRY_BUTTON_POS.x + OUTER_RETRY_RAD, RETRY_BUTTON_POS.y + INNER_RETRY_RAD, 0, 1, 1, love.graphics.getFont():getWidth(RETRY_TEXT)/2)
   
   --game state information
-  love.graphics.print("Player points: " .. playerPoints, 0, 320)
-  love.graphics.print("AI points: " .. enemyPoints, 0, 340)
-  love.graphics.print("Player mana: " .. playerMana, 0, 360)
-  love.graphics.print("AI mana: " .. enemyMana, 0, 380)
+  love.graphics.print("Player points: " .. playerPoints, GAME_STATE_X, GAME_STATE_Y)
+  love.graphics.print("AI points: " .. enemyPoints, GAME_STATE_X, GAME_STATE_Y + GAME_STATE_OFFSET)
+  love.graphics.print("Player mana: " .. playerMana, GAME_STATE_X, GAME_STATE_Y + 2 * GAME_STATE_OFFSET)
+  love.graphics.print("AI mana: " .. enemyMana, GAME_STATE_X, GAME_STATE_Y + 3 * GAME_STATE_OFFSET)
   
   if not gameOver then
     return
   end
   
-  love.graphics.setFont(love.graphics.setNewFont(70))
+  love.graphics.setFont(love.graphics.setNewFont(GAME_OVER_FONT_SIZE))
   if enemyPoints > playerPoints then
-    love.graphics.print("You Lose", 280, 0)
+    love.graphics.print("You Lose", GAME_OVER_X, GAME_OVER_Y)
   else
-    love.graphics.print("You Win!", 280, 0)
+    love.graphics.print("You Win!", GAME_OVER_X, GAME_OVER_Y)
   end
   
   
@@ -165,8 +182,8 @@ function reset()
   enemyDeck = {}
   
   for _, card in ipairs(twoPerDeck) do
-    local card1 = card:new(playerDeckPos)
-    local card2 = card:new(playerDeckPos)
+    local card1 = card:new(PLAYER_DECK_POS)
+    local card2 = card:new(PLAYER_DECK_POS)
     table.insert(playerDeck, card1)
     table.insert(cardTable, card1)
     table.insert(playerDeck, card2)
@@ -174,8 +191,8 @@ function reset()
   end
   
   for _, card in ipairs(twoPerDeck) do
-    local card1 = card:new(enemyDeckPos)
-    local card2 = card:new(enemyDeckPos)
+    local card1 = card:new(ENEMY_DECK_POS)
+    local card2 = card:new(ENEMY_DECK_POS)
     table.insert(enemyDeck, card1)
     table.insert(cardTable, card1)
     table.insert(enemyDeck, card2)
@@ -183,8 +200,8 @@ function reset()
   end
   
   for _, card in ipairs(onePerDeck) do
-    local card1 = card:new(playerDeckPos)
-    local card2 = card:new(enemyDeckPos)
+    local card1 = card:new(PLAYER_DECK_POS)
+    local card2 = card:new(ENEMY_DECK_POS)
     table.insert(playerDeck, card1)
     table.insert(cardTable, card1)
     table.insert(enemyDeck, card2)

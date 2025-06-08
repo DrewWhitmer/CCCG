@@ -71,6 +71,20 @@ end
 
 --subclass sandbox
 
+--adds given power to all cards in given lane
+function CardClass:addPowerToLane(pow, lane)
+  for _, card in ipairs(lane.cards) do
+    card.power = card.power + pow
+  end
+end
+
+--sets given power to all cards in given lane
+function CardClass:setPowerInLane(pow, lane)
+  for _, card in ipairs(lane.cards) do
+    card.power = pow
+  end
+end
+
 --returns the card with the most power in a given lane
 function CardClass:getStrongestHere()
   local strongestCard = self.lane.cards[1]
@@ -106,80 +120,33 @@ function CardClass:getTwoCards()
 end
 
 
--- BASIC CARDS --
+-- All the different kinds of cards --
+require "Cards/woodCow"
+require "Cards/minotaur"
+require "Cards/pegasus"
+require "Cards/titan"
+require "Cards/ares"
+require "Cards/artemis"
+require "Cards/hera"
+require "Cards/demeter"
+require "Cards/hercules"
+require "Cards/dionysus"
+require "Cards/midas"
+require "Cards/aphrodite"
+require "Cards/heph"
+require "Cards/pandora"
 
---Wooden Cow
-WoodCowClass = CardClass:new(
-  1,
-  1,
-  "Wooden Cow",
-  "",
-  CARD_STATES.IN_DECK,
-  Vector(0, 0)
-  )
-function WoodCowClass:new(pos)
-  local woodCow = {}
-  local metadata = {__index = WoodCowClass}
-  setmetatable(woodCow, metadata)
-  
-  woodCow.pos = pos
-  
-  return woodCow
-end
 
---Pegasus
-PegasusClass = CardClass:new(
-  3,
-  5,
-  "Pegasus",
-  "",
-  CARD_STATES.IN_DECK,
-  Vector(0, 0)
-  )
-function PegasusClass:new(pos)
-  local pegasus = {}
-  local metadata = {__index = PegasusClass}
-  setmetatable(pegasus, metadata)
-  
-  pegasus.pos = pos
-  
-  return pegasus
-end
 
---Minotaur
-MinotaurClass = CardClass:new(
-  5,
-  9,
-  "Minotaur",
-  "",
-  CARD_STATES.IN_DECK,
-  Vector(0, 0)
-  )
-function MinotaurClass:new(pos)
-  local minotaur = {}
-  local metadata = {__index = MinotaurClass}
-  setmetatable(minotaur, metadata)
-  
-  minotaur.pos = pos
-  
-  return minotaur
-end
 
---Titan
-TitanClass = CardClass:new(
-  6,
-  12,
-  "Titan",
-  "",
-  CARD_STATES.IN_DECK,
-  Vector(0, 0)
-  )
-function TitanClass:new(pos)
-  local titan = {}
-  local metadata = {__index = TitanClass}
-  setmetatable(titan, metadata)
-  
-  titan.pos = pos
-  
-  return titan
-end
+
+
+
+
+
+
+
+
+
+
+
