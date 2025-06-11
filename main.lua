@@ -46,7 +46,6 @@ GAME_OVER_Y = 0
 
 function love.load()
   require "Cards/card"
-  require "complexCards"
   require "grabber"
   require "lane"
   require "hand"
@@ -166,12 +165,12 @@ function love.draw()
   
 end
 
-function love.mousepressed()
-  grabbedCard = grabber:grab()
+function love.mousepressed(x, y, button)
+  grabbedCard = grabber:grab(button)
 end
 
-function love.mousereleased()
-  grabber:release(grabbedCard)
+function love.mousereleased(x, y, button)
+  grabber:release(grabbedCard, button)
 end
 
 function reset()

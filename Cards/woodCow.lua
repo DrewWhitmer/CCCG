@@ -2,7 +2,7 @@
 WoodCowClass = CardClass:new(
   1,
   1,
-  "Wooden Cow",
+  "Wooden\nCow",
   "",
   CARD_STATES.IN_DECK,
   Vector(0, 0)

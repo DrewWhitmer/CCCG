@@ -3,6 +3,19 @@ CardClass = {}
 
 CARD_WIDTH = 70
 CARD_HEIGHT = 95
+COST_OFFSET = 2
+SINGLE_POWER_OFFSET = 10
+DOUBLE_POWER_OFFSET = 15
+DESCRIPTION_OFFSET = 20
+
+INSPECT_X = love.graphics.getWidth()/2 - (200 * (70/95))
+INSPECT_Y = love.graphics.getHeight()/2 - 200
+INSPECT_WIDTH = 400 * (70/95)
+INSPECT_HEIGHT = 400 
+INSPECT_FONT_SIZE = 20
+INSPECT_OFFSET = 15
+DOUBLE_INSPECT_OFFSET = 30
+DESC_INSPECT_OFFSET = 50
 
 
 CARD_STATES = {
@@ -11,7 +24,8 @@ CARD_STATES = {
   GRABBED = 3,
   FLIPPED = 4,
   IN_PLAY = 5,
-  DISCARD = 6
+  DISCARD = 6,
+  INSPECT = 7,
 }
 
 
@@ -26,6 +40,7 @@ function CardClass:new(cost, power, name, desc, state, pos)
   card.state = state
   card.lane = 0
   card.pos = pos
+  card.prevState = 0
   
   return card
   
@@ -48,20 +63,44 @@ function CardClass:draw()
     return
   end
   
+  --set numbers to predetermined inspect values when inspecting
+  if self.state == CARD_STATES.INSPECT then
+    
+    --make the base card
+    love.graphics.setColor(COLORS.WHITE)
+    love.graphics.rectangle("fill", INSPECT_X, INSPECT_Y, INSPECT_WIDTH, INSPECT_HEIGHT)
+    --display card info
+    love.graphics.setFont(love.graphics.setNewFont(INSPECT_FONT_SIZE))
+    love.graphics.setColor(COLORS.BLACK)
+    love.graphics.print(self.cost, INSPECT_X, INSPECT_Y)
+    if self.power < 10 then
+      love.graphics.print(self.power, INSPECT_X + INSPECT_WIDTH - INSPECT_OFFSET, INSPECT_Y)
+    else
+      love.graphics.print(self.power, INSPECT_X + INSPECT_WIDTH - DOUBLE_INSPECT_OFFSET, INSPECT_Y)
+    end
+  
+    
+    love.graphics.print(self.name, INSPECT_X + INSPECT_WIDTH/2, INSPECT_Y + INSPECT_HEIGHT/2, 0, 1, 1, love.graphics.getFont():getWidth(self.name)/2)
+    love.graphics.print(self.desc, INSPECT_X + INSPECT_WIDTH/2, INSPECT_Y + INSPECT_HEIGHT/2 + DESC_INSPECT_OFFSET, 0, 1, 1, love.graphics.getFont():getWidth(self.desc)/2)
+    love.graphics.setFont(love.graphics.setNewFont(FONT_SIZE))
+    return
+  end
+
+  
   --make the base card
   love.graphics.setColor(COLORS.WHITE)
   love.graphics.rectangle("fill", self.pos.x, self.pos.y, CARD_WIDTH, CARD_HEIGHT)
   --display card info
   love.graphics.setColor(COLORS.BLACK)
-  love.graphics.print(self.cost, self.pos.x + 2, self.pos.y)
+  love.graphics.print(self.cost, self.pos.x + COST_OFFSET, self.pos.y)
   if self.power < 10 then
-    love.graphics.print(self.power, self.pos.x + CARD_WIDTH - 10, self.pos.y)
+    love.graphics.print(self.power, self.pos.x + CARD_WIDTH - SINGLE_POWER_OFFSET, self.pos.y)
   else
-    love.graphics.print(self.power, self.pos.x + CARD_WIDTH - 15, self.pos.y)
+    love.graphics.print(self.power, self.pos.x + CARD_WIDTH - DOUBLE_POWER_OFFSET, self.pos.y)
   end
   
   love.graphics.print(self.name, self.pos.x + CARD_WIDTH/2, self.pos.y + CARD_HEIGHT/2, 0, 1, 1, love.graphics.getFont():getWidth(self.name)/2)
-  love.graphics.print(self.desc, self.pos.x + CARD_WIDTH/2, self.pos.y + CARD_HEIGHT/2 + 20, 0, 0.5, 0.5, love.graphics.getFont():getWidth(self.desc)/2)
+  love.graphics.print(self.desc, self.pos.x + CARD_WIDTH/2, self.pos.y + CARD_HEIGHT/2 + DESCRIPTION_OFFSET, 0, .5, .5, love.graphics.getFont():getWidth(self.desc)/2)
 end
 
 
