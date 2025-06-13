@@ -5,6 +5,7 @@
 io.stdout:setvbuf("no")
 require "vector"
 
+--consts
 CARD_OFFSET = 5
 
 COLORS = {
@@ -34,6 +35,11 @@ OUTER_RETRY_RAD = 50
 INNER_RETRY_RAD = 45
 RETRY_TEXT = "reset"
 
+UNDO_BUTTON_POS = Vector(835, 450)
+UNDO_BUTTON_WIDTH = 128
+UNDO_BUTTON_HEIGHT = 64
+undoImg = love.graphics.newImage("assets/images/undoButton.png")
+
 GAME_STATE_X = 0
 GAME_STATE_Y = 320
 GAME_STATE_OFFSET = 20
@@ -44,15 +50,23 @@ GAME_OVER_FONT_SIZE = 70
 GAME_OVER_X = 280
 GAME_OVER_Y = 0
 
+titleScreen = love.graphics.newImage("assets/images/titleScreen.png")
+
+music = love.audio.newSource("assets/sounds/theseusTheme.wav", "static")
+music:setLooping(true)
+music:setVolume(0.5)
+
 function love.load()
   require "Cards/card"
   require "grabber"
   require "lane"
   require "hand"
+  require "playerQueue"
   
   love.window.setTitle("The Cards of Theseus")
   love.window.setMode(960, 640)
-  love.graphics.setBackgroundColor(COLORS.GREEN)
+  love.graphics.setBackgroundColor(COLORS.WHITE)
+  music:play()
   
   cardTable = {}
   
@@ -99,10 +113,13 @@ function love.load()
   
   gameOver = false
   
-  reset()
+  playerQueue = PlayerQueue:new()
+  
+  gameStart = false
 end
 
 function love.update()
+  
   grabber:update()
   
   for _, card in ipairs(cardTable) do
@@ -115,6 +132,11 @@ function love.update()
 end
 
 function love.draw()
+  
+  if not gameStart then
+    love.graphics.draw(titleScreen, 0, 0)
+    return
+  end
   
   love.graphics.setFont(love.graphics.setNewFont(FONT_SIZE))
   for _, lane in ipairs(playerLaneTable) do
@@ -145,7 +167,12 @@ function love.draw()
   love.graphics.setColor(COLORS.BLACK)
   love.graphics.print(RETRY_TEXT, RETRY_BUTTON_POS.x + OUTER_RETRY_RAD, RETRY_BUTTON_POS.y + INNER_RETRY_RAD, 0, 1, 1, love.graphics.getFont():getWidth(RETRY_TEXT)/2)
   
+  --undo button
+  love.graphics.setColor(COLORS.WHITE)
+  love.graphics.draw(undoImg, UNDO_BUTTON_POS.x, UNDO_BUTTON_POS.y)
+  
   --game state information
+  love.graphics.setColor(COLORS.BLACK)
   love.graphics.print("Player points: " .. playerPoints, GAME_STATE_X, GAME_STATE_Y)
   love.graphics.print("AI points: " .. enemyPoints, GAME_STATE_X, GAME_STATE_Y + GAME_STATE_OFFSET)
   love.graphics.print("Player mana: " .. playerMana, GAME_STATE_X, GAME_STATE_Y + 2 * GAME_STATE_OFFSET)
@@ -161,8 +188,14 @@ function love.draw()
   else
     love.graphics.print("You Win!", GAME_OVER_X, GAME_OVER_Y)
   end
-  
-  
+end
+
+function love.keypressed() 
+  if not gameStart then
+    gameStart = true
+    reset()
+    love.graphics.setBackgroundColor(COLORS.GREEN)
+  end
 end
 
 function love.mousepressed(x, y, button)
@@ -251,6 +284,7 @@ function reset()
   playerPoints = 0
   enemyPoints = 0
   gameOver = false
+  playerQueue.cards = {}
 end
 
 function nextTurn()
@@ -258,17 +292,17 @@ function nextTurn()
   
   --reveal all flipped cards
   if playerPoints > enemyPoints then
-    revealCards(playerLaneTable)
+    playerQueue:revealAll()
     revealCards(enemyLaneTable)
   elseif enemyPoints > playerPoints then
     revealCards(enemyLaneTable)
-    revealCards(playerLaneTable)
+    playerQueue:revealAll()
   elseif math.random() > 0.5 then
-    revealCards(playerLaneTable)
+    playerQueue:revealAll()
     revealCards(enemyLaneTable)
   else
     revealCards(enemyLaneTable)
-    revealCards(playerLaneTable)
+    playerQueue:revealAll()
   end
   
   --get the total power of a specific lane for player and enemy. If enemy power is greater, add it to enemy points, else add it to player points
@@ -292,6 +326,7 @@ function nextTurn()
   playerMana = turn
   enemyMana = turn
   
+  playerQueue.cards = {}
 end
 
 function playRandomEnemyCard()

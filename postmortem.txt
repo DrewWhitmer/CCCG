@@ -1,0 +1,11 @@
+I would say that this project went pretty well. I was able to do most of what I set out to do, and I feel like my code is a lot better than it would
+have been at the start of the quarter. I don't know if it was just because I had learned more/had a base to work on for this project, but it felt a lot
+easier than the solitaire project. I think I did a good job doing the balancing between expandable code/optimization/readability that was talked about 
+on the last day of class. I also, from what I remember, didn't have any big glitches or bugs that I had to work through, which was pretty surprising.
+Obviously nothing worked as intended on the first go around, but I never spent a substantial amount of time on bugfixing like during the solitaire
+project. This project probably went better than most other projects I have done outside of this class as well. I think this is because I've kept my
+scope more limited for this and just have more experience in general. I think what I am most proud of for this project is that, while working on it,
+I found it very easy to expand on, which made the actual process a lot more fun. With some of my other project, it's felt like whenever I want to add
+something I have to change the entire codebase, which wasn't the case here. The biggest problem that I have with the project in it's current state
+mostly resides on the visual side of things. I think even just a simple base design for the cards could have made the whole thing feel a lot more
+complete. Like I said, I had more fun with this project than I was thinking that I was going to, so I think that I would do something like this again.

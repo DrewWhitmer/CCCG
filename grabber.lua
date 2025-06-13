@@ -2,6 +2,10 @@ require "vector"
 
 GrabberClass = {}
 
+click = love.audio.newSource("assets/sounds/click.wav", "static")
+release = love.audio.newSource("assets/sounds/release.wav", "static")
+clickButton = love.audio.newSource("assets/sounds/button.wav", "static")
+
 function GrabberClass:new()
   local grabber = {}
   local metadata = {__index = GrabberClass}
@@ -20,11 +24,13 @@ function GrabberClass:update()
 end
 
 function GrabberClass:grab(button)
+  click:play()
   self.grabPos = self.currentMousePos
   
   --sees if the player clicks on the retry button
   if self.grabPos.x >= RETRY_BUTTON_POS.x and self.grabPos.x <= RETRY_BUTTON_POS.x + (OUTER_RETRY_RAD * 2) and self.grabPos.y >= RETRY_BUTTON_POS.y and self.grabPos.y <= RETRY_BUTTON_POS.y + (OUTER_RETRY_RAD * 2) then
     reset()
+    clickButton:play()
   end
   
   --player can't do anything besides reset if the game is over
@@ -48,8 +54,14 @@ function GrabberClass:grab(button)
   --sees if the player clicks on the submit button
   if self.grabPos.x >= SUBMIT_BUTTON_POS.x and self.grabPos.x <= SUBMIT_BUTTON_POS.x + (OUTER_SUBMIT_RAD * 2) and self.grabPos.y >= SUBMIT_BUTTON_POS.y and self.grabPos.y <= SUBMIT_BUTTON_POS.y + (OUTER_SUBMIT_RAD * 2) then
     nextTurn()
+    clickButton:play()
   end
   
+  --sees if the player clicks on the undo button
+  if self.grabPos.x >= UNDO_BUTTON_POS.x and self.grabPos.x <= UNDO_BUTTON_POS.x + UNDO_BUTTON_WIDTH and self.grabPos.y >= UNDO_BUTTON_POS.y and self.grabPos.y <= UNDO_BUTTON_POS.y + UNDO_BUTTON_HEIGHT then
+    playerQueue:undo()
+    clickButton:play()
+  end
   
 end
 
@@ -74,7 +86,9 @@ function GrabberClass:release(grabbedCard, button)
   for index, lane in ipairs(playerLaneTable) do
     if self.currentMousePos.x >= lane.pos.x and self.currentMousePos.x <= lane.pos.x + LANE_WIDTH and self.currentMousePos.y >= lane.pos.y and self.currentMousePos.y <= lane.pos.y + LANE_HEIGHT and grabbedCard.cost <= playerMana then
       lane:addCard(grabbedCard)
+      release:play()
       playerHand:remove(grabbedCard)
+      playerQueue:append(grabbedCard)
       return
     end
   end
